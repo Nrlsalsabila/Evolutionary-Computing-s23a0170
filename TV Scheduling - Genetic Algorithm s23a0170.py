@@ -18,9 +18,9 @@ that maximizes overall viewer ratings across all available time slots.
 """)
 
 # -----------------------------------------------------------------------------
-# 2. FILE UPLOADER & DATA PARSING
+# 2. FILE UPLOADER & DATA PARSING (FIXED KEYERROR ISSUE)
 # -----------------------------------------------------------------------------
-st.sidebar.header(" 1. Load Rating Data")
+st.sidebar.header("📁 1. Load Rating Data")
 uploaded_file = st.sidebar.file_uploader("Upload 'program_ratings.csv'", type=["csv"])
 
 @st.cache_data
@@ -28,8 +28,9 @@ def load_ratings(file):
     program_ratings = {}
     df = pd.read_csv(file)
     for _, row in df.iterrows():
-        program = row[0]
-        ratings = [float(x) for x in row[1:]]
+        # Using .iloc[0] and .iloc[1:] fixes the Pandas KeyError
+        program = row.iloc[0]
+        ratings = [float(x) for x in row.iloc[1:]]
         program_ratings[program] = ratings
     return program_ratings, df
 
@@ -37,10 +38,10 @@ if uploaded_file is not None:
     ratings_dict, df_raw = load_ratings(uploaded_file)
     st.sidebar.success("CSV file loaded successfully!")
 else:
-    st.info(" Please upload your `program_ratings.csv` file in the sidebar to begin.")
+    st.info("👈 Please upload your `program_ratings.csv` file in the sidebar to begin.")
     st.stop()
 
-with st.expander("View Loaded Program Ratings Data"):
+with st.expander("👀 View Loaded Program Ratings Data"):
     st.dataframe(df_raw, use_container_width=True)
 
 # -----------------------------------------------------------------------------
@@ -146,7 +147,7 @@ def run_genetic_algorithm(gen, pop_s, crossover_rate, mutation_rate, elitism_s):
 # -----------------------------------------------------------------------------
 # 5. EXECUTION & DISPLAY RESULTS IN TABLE FORMAT
 # -----------------------------------------------------------------------------
-if st.button("Run Genetic Algorithm"):
+if st.button("🚀 Run Genetic Algorithm"):
     with st.spinner("Optimizing schedule with Genetic Algorithm..."):
         best_sched, max_fitness = run_genetic_algorithm(
             generations, pop_size, co_r, mut_r, elitism_size
@@ -171,6 +172,6 @@ if st.button("Run Genetic Algorithm"):
     
     schedule_df = pd.DataFrame(results)
 
-    # Requirement: Display schedule in table format
-    st.subheader(" Final Optimized TV Schedule")
+    # Display schedule in table format
+    st.subheader("📋 Final Optimized TV Schedule")
     st.table(schedule_df)
